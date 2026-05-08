@@ -964,7 +964,7 @@
         <h2 id="drop-title">اسحب الملف المضغوط هنا</h2>
         <p>أو اضغط لاختيار ملف من جهازك</p>
       </label>
-      <input type="file" id="file-input" class="hidden" accept="*/*">
+      <input type="file" id="file-input" class="hidden">
 
       <div id="loading-zone" class="loading-zone">
         <div class="spinner"></div>
@@ -1048,8 +1048,8 @@
       $('compress-opts').classList.toggle('hidden', m === 'extract');
       $('drop-title').textContent = m === 'extract' ? 'اسحب الملف المضغوط هنا' : 'اسحب الملفات المراد ضغطها';
       $('file-input').multiple = m === 'compress';
-      // إزالة التقييد الصارم ليتمكن مستخدمو الجوال من اختيار ملفات مثل .rar و .7z
-      $('file-input').accept = '*/*';
+      // إزالة التقييد الصارم ليتمكن مستخدمو الجوال من اختيار كافة الملفات بدون تعليق المتصفح
+      $('file-input').removeAttribute('accept');
     }
 
     // ---- Drop Zone ----
