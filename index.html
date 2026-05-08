@@ -964,7 +964,7 @@
         <h2 id="drop-title">اسحب الملف المضغوط هنا</h2>
         <p>أو اضغط لاختيار ملف من جهازك</p>
       </label>
-      <input type="file" id="file-input" class="hidden" accept=".zip,.rar,.7z,.tar,.gz">
+      <input type="file" id="file-input" class="hidden" accept="*/*">
 
       <div id="loading-zone" class="loading-zone">
         <div class="spinner"></div>
@@ -1048,7 +1048,8 @@
       $('compress-opts').classList.toggle('hidden', m === 'extract');
       $('drop-title').textContent = m === 'extract' ? 'اسحب الملف المضغوط هنا' : 'اسحب الملفات المراد ضغطها';
       $('file-input').multiple = m === 'compress';
-      $('file-input').accept = m === 'compress' ? '' : '.zip,.rar,.7z,.tar,.gz';
+      // إزالة التقييد الصارم ليتمكن مستخدمو الجوال من اختيار ملفات مثل .rar و .7z
+      $('file-input').accept = '*/*';
     }
 
     // ---- Drop Zone ----
@@ -1198,6 +1199,13 @@ function parse(txt){
       if (mode === 'extract') {
         const file = files[0];
         const ext = file.name.split('.').pop().toLowerCase();
+        
+        // التحقق من صيغة الملف في الجافاسكربت بدلاً من الاعتماد على متصفح الجوال
+        const supported = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'];
+        if (!supported.includes(ext)) {
+          showError('صيغة الملف غير مدعومة. يرجى اختيار ملف مضغوط صحيح (مثل zip, rar, 7z).');
+          return;
+        }
 
         showZone('loading-zone');
         setLoad('جاري قراءة الأرشيف...', file.name);
