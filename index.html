@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أدوات الملفات الشاملة</title>
+  <title>جمارك الملفات👮 </title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -342,16 +342,15 @@
     .results-header {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
     }
 
-    @media(min-width: 640px) {
-      .results-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
+    .results-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
     }
 
     .results-header h3 {
@@ -360,16 +359,41 @@
       color: #1f2937;
       display: flex;
       align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .results-header h3 span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .results-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .results-actions-bar>button {
+      flex: 1;
+      min-width: 110px;
     }
 
     .btn-reset {
       background: #f3f4f6;
       border: none;
       border-radius: 0.5rem;
-      padding: 0.5rem 1.25rem;
+      padding: 0.4rem 0.75rem;
       font-family: 'Cairo', sans-serif;
       font-weight: 700;
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: #374151;
       cursor: pointer;
       transition: all 0.2s;
@@ -377,13 +401,55 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      white-space: nowrap;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
       flex-shrink: 0;
     }
 
 
     .btn-reset:hover {
       background: #e5e7eb;
+    }
+
+    /* ===== Download All Button ===== */
+    .btn-dl-all {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: linear-gradient(135deg, #4f46e5, #3b82f6);
+      color: #ffffff;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-dl-all:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4338ca, #2563eb);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-dl-all:disabled {
+      opacity: 0.7;
+      cursor: default;
+      transform: none;
+    }
+
+    .btn-dl-all.done {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
     }
 
     .file-list {
@@ -395,14 +461,30 @@
       background: #ffffff;
     }
 
+    /* ===== File Item — Responsive Layout ===== */
     .file-item {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      /* mobile: icon+meta top row / buttons bottom row */
+      grid-template-columns: 3rem 1fr;
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "icon meta"
+        "btns btns";
       align-items: center;
-      padding: 1rem;
+      padding: 0.875rem 1rem;
       border-bottom: 1px solid #f3f4f6;
-      gap: 1rem;
+      gap: 0.5rem 0.75rem;
       transition: background-color 0.2s;
+    }
+
+    @media (min-width: 540px) {
+      .file-item {
+        grid-template-columns: 3rem 1fr auto;
+        grid-template-rows: auto;
+        grid-template-areas: "icon meta btns";
+        align-items: center;
+        gap: 0.75rem;
+      }
     }
 
     .file-item:last-child {
@@ -414,6 +496,7 @@
     }
 
     .file-icon {
+      grid-area: icon;
       width: 3rem;
       height: 3rem;
       border-radius: 0.75rem;
@@ -426,9 +509,32 @@
     }
 
     .file-meta {
-      flex: 1;
-      min-width: 150px;
+      grid-area: meta;
       overflow: hidden;
+    }
+
+    /* Buttons wrapper */
+    .file-btns {
+      grid-area: btns;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    /* On mobile the btns span full width with equal-size buttons */
+    @media (max-width: 539px) {
+      .file-btns {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .file-btns>button,
+      .file-btns>.sec-badge {
+        flex: 1;
+        min-width: fit-content;
+      }
     }
 
     .file-name {
@@ -448,28 +554,35 @@
       margin-top: 0.25rem;
     }
 
-    .btn-dl {
+    /* ===== Shared per-file button base ===== */
+    .btn-dl,
+    .btn-preview {
       border: none;
       border-radius: 0.5rem;
-      padding: 0.5rem 1.25rem;
+      padding: 0.45rem 0.5rem;
       font-family: 'Cairo', sans-serif;
       font-weight: 700;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.2s;
-      background: #eef2ff;
-      color: #4338ca;
-      white-space: nowrap;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: auto;
+      gap: 4px;
+    }
+
+    .btn-dl {
+      background: #eef2ff;
+      color: #4338ca;
     }
 
     .btn-dl:hover:not(:disabled) {
       background: #4f46e5;
-      color: #ffffff;
+      color: #fff;
     }
 
     .btn-dl:disabled {
@@ -487,39 +600,23 @@
       color: #991b1b;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    /* ===== Preview Button ===== */
     .btn-preview {
-      border: none;
-      border-radius: 0.5rem;
-      padding: 0.5rem 1.1rem;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 700;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.2s;
       background: #f0fdf4;
       color: #16a34a;
-      white-space: nowrap;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      margin-right: auto;
     }
 
     .btn-preview:hover:not(:disabled) {
       background: #16a34a;
-      color: #ffffff;
+      color: #fff;
     }
 
     .btn-preview:disabled {
       opacity: 0.5;
       cursor: default;
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     /* ===== Preview Modal ===== */
@@ -689,9 +786,10 @@
       background: #eef2ff;
       border: none;
       border-radius: 0.5rem;
-      padding: 0.5rem 1.25rem;
+      padding: 0.5rem 0.75rem;
       font-family: 'Cairo', sans-serif;
       font-weight: 700;
+      font-size: 0.85rem;
       color: #4338ca;
       cursor: pointer;
       transition: all 0.2s;
@@ -700,7 +798,9 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      white-space: nowrap;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
       flex-shrink: 0;
     }
 
@@ -883,12 +983,29 @@
 
       <div id="results-zone" class="results-zone">
         <div class="results-header">
-          <h3><i class="fas fa-folder-open" style="color:#eab308;margin-left:8px;"></i><span
-              id="res-name">النتائج</span></h3>
-          <div style="display:flex;gap:0.5rem;align-items:center;">
-            <button class="btn-scan" id="btn-scan">فحص الأمان <i class="fas fa-shield-alt"></i></button>
-            <button class="btn-reset" id="btn-reset">عملية جديدة <i class="fas fa-redo" style="margin-right:6px"></i></button>
+
+          <!-- الصف الأول: العنوان + زر عملية جديدة -->
+          <div class="results-header-top">
+            <h3>
+              <i class="fas fa-folder-open" style="color:#eab308;"></i>
+              <span id="res-name">النتائج</span>
+            </h3>
+            <button class="btn-reset" id="btn-reset" title="بدء عملية جديدة">
+              <i class="fas fa-redo"></i>&nbsp;جديد
+            </button>
           </div>
+
+          <!-- الصف الثاني: شريط الإجراءات -->
+          <div class="results-actions-bar">
+            <button class="btn-dl-all" id="btn-dl-all" style="flex:1;">
+              <i class="fas fa-download"></i> تحميل دفعة واحدة
+            </button>
+            <div style="width:1px;height:1.5rem;background:#e5e7eb;flex-shrink:0;"></div>
+            <button class="btn-scan" id="btn-scan" style="flex:1;">
+              <i class="fas fa-shield-alt"></i> فحص الأمان
+            </button>
+          </div>
+
         </div>
         <div id="scan-progress-wrap">
           <div id="scan-prog-bar-bg">
@@ -1214,8 +1331,10 @@ function parse(txt){
         <div class="file-name" title="${f.path}">${f.name}</div>
         <div class="file-size">${fmtBytes(f.size)}</div>
       </div>
-      <button class="btn-preview" id="${pvId}" title="معاينة">معاينة <i class="fas fa-eye"></i></button>
-      <button class="btn-dl" id="${dlId}">تحميل <i class="fas fa-download" style="margin-right:5px"></i></button>`;
+      <div class="file-btns">
+        <button class="btn-preview" id="${pvId}"><i class="fas fa-eye"></i> معاينة</button>
+        <button class="btn-dl" id="${dlId}"><i class="fas fa-download"></i> تحميل</button>
+      </div>`;
         ul.appendChild(li);
 
         // Download handler
@@ -1465,8 +1584,11 @@ function parse(txt){
         badge.innerHTML = `<i class="fas ${risk.icon}"></i>${risk.label}`;
         badge.title = risk.tip || '';
 
-        const pvBtn = item.querySelector('.btn-preview');
-        if (pvBtn) item.insertBefore(badge, pvBtn);
+        // Insert badge inside .file-btns, before the preview button
+        const fileBtns = item.querySelector('.file-btns');
+        const pvBtn = fileBtns ? fileBtns.querySelector('.btn-preview') : item.querySelector('.btn-preview');
+        if (fileBtns) fileBtns.insertBefore(badge, pvBtn);
+        else if (pvBtn) item.insertBefore(badge, pvBtn);
         else item.appendChild(badge);
       }
 
@@ -1480,7 +1602,49 @@ function parse(txt){
     document.addEventListener('DOMContentLoaded', () => {
       const sb = $('btn-scan');
       if (sb) sb.addEventListener('click', runSecurityScan);
+
+      const daBtn = $('btn-dl-all');
+      if (daBtn) daBtn.addEventListener('click', downloadAll);
     });
+
+    // ===== Download All Logic =====
+    async function downloadAll() {
+      if (!currentList.length) return;
+      const btn = $('btn-dl-all');
+      btn.disabled = true;
+
+      const total = currentList.length;
+      let done = 0;
+      let failed = 0;
+
+      for (const f of currentList) {
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${done}/${total}`;
+        try {
+          const blob = await f.dl();
+          // Small delay to avoid browser popup blockers on rapid downloads
+          await new Promise(r => setTimeout(r, 120));
+          downloadBlob(blob, f.name);
+          done++;
+        } catch (e) {
+          failed++;
+          console.error('فشل تحميل:', f.name, e);
+        }
+      }
+
+      btn.classList.add('done');
+      if (failed === 0) {
+        btn.innerHTML = `<i class="fas fa-check"></i> تم تحميل ${done} ملف`;
+      } else {
+        btn.innerHTML = `<i class="fas fa-check"></i> ${done} نجح / ${failed} فشل`;
+      }
+
+      // Reset button after 4 seconds
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('done');
+        btn.innerHTML = '<i class="fas fa-download"></i> تحميل الكل';
+      }, 4000);
+    }
 
 
 
