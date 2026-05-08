@@ -1,0 +1,14 @@
+# Python backend (لا يشتغل على GitHub Pages)
+main.py
+requirements.txt
+__pycache__/
+*.pyc
+venv/
+
+# مجلدات مؤقتة
+temp_workspace/
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
+*.log

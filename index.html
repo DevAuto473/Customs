@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أدوات الملفات الشاملة</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-color: #f3f4f6;
+      background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: #1f2937;
+    }
+
+    /* تخصيص شريط التمرير */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 100%;
+      max-width: 48rem;
+      border: 1px solid #f3f4f6;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(to right, #4f46e5, #3b82f6);
+      padding: 2rem;
+      text-align: center;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      top: -2.5rem;
+      right: -2.5rem;
+      width: 8rem;
+      height: 8rem;
+      background: #ffffff;
+      opacity: 0.1;
+      border-radius: 50%;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      bottom: -2.5rem;
+      left: -2.5rem;
+      width: 6rem;
+      height: 6rem;
+      background: #ffffff;
+      opacity: 0.1;
+      border-radius: 50%;
+    }
+
+    .header h1 {
+      font-size: 1.875rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header p {
+      font-size: 0.95rem;
+      color: #e0e7ff;
+      position: relative;
+      z-index: 10;
+    }
+
+    .body {
+      padding: 1.5rem;
+    }
+
+    @media(min-width: 640px) {
+      .body {
+        padding: 2.5rem;
+      }
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .toggle {
+      background: #eef2ff;
+      border-radius: 9999px;
+      padding: 0.25rem;
+      display: inline-flex;
+      gap: 0.25rem;
+    }
+
+    .toggle button {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 9999px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: #6b7280;
+    }
+
+    .toggle button.active {
+      background: #ffffff;
+      color: #4f46e5;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .compress-opts {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: rgba(238, 242, 255, 0.5);
+      border: 1px solid #e0e7ff;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .compress-opts label {
+      font-weight: 700;
+      color: #4338ca;
+      font-size: 0.875rem;
+    }
+
+    .compress-opts select {
+      border: 1px solid #c7d2fe;
+      border-radius: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      color: #4338ca;
+      background: #ffffff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .error-box {
+      background: #fef2f2;
+      border-right: 4px solid #ef4444;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #b91c1c;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .drop-zone {
+      border: 2px dashed #818cf8;
+      border-radius: 0.75rem;
+      padding: 3rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+      min-height: 220px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      background: #eef2ff;
+      border-color: #4f46e5;
+      transform: scale(1.02);
+    }
+
+    .drop-zone .icon {
+      width: 5rem;
+      height: 5rem;
+      background: #e0e7ff;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 2.25rem;
+      color: #6366f1;
+    }
+
+    .drop-zone h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    @media(min-width: 640px) {
+      .drop-zone h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .drop-zone p {
+      font-size: 1rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .loading-zone {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 0;
+    }
+
+    .spinner {
+      width: 5rem;
+      height: 5rem;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .spinner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 4px solid #e5e7eb;
+      border-radius: 50%;
+    }
+
+    .spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 4px solid #4f46e5;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .loading-sub {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      max-width: 20rem;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      max-width: 24rem;
+    }
+
+    .progress-bar-bg {
+      background: #e0e7ff;
+      border-radius: 9999px;
+      height: 0.625rem;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(to right, #6366f1, #3b82f6);
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #6b7280;
+    }
+
+    .results-zone {
+      display: none;
+    }
+
+    .results-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media(min-width: 640px) {
+      .results-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .results-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-reset {
+      background: #f3f4f6;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+
+    .btn-reset:hover {
+      background: #e5e7eb;
+    }
+
+    .file-list {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .file-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      gap: 1rem;
+      transition: background-color 0.2s;
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-item:hover {
+      background: #f9fafb;
+    }
+
+    .file-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .file-meta {
+      flex: 1;
+      min-width: 150px;
+      overflow: hidden;
+    }
+
+    .file-name {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #1f2937;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      direction: ltr;
+      text-align: right;
+    }
+
+    .file-size {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .btn-dl {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #eef2ff;
+      color: #4338ca;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: auto;
+    }
+
+    .btn-dl:hover:not(:disabled) {
+      background: #4f46e5;
+      color: #ffffff;
+    }
+
+    .btn-dl:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .btn-dl.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .btn-dl.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ===== Preview Button ===== */
+    .btn-preview {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.1rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f0fdf4;
+      color: #16a34a;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin-right: auto;
+    }
+
+    .btn-preview:hover:not(:disabled) {
+      background: #16a34a;
+      color: #ffffff;
+    }
+
+    .btn-preview:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* ===== Preview Modal ===== */
+    #preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #preview-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #preview-box {
+      background: #ffffff;
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+      width: 100%;
+      max-width: 860px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #preview-overlay.open #preview-box {
+      transform: translateY(0) scale(1);
+    }
+
+    #preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
+      background: linear-gradient(to left, #f9fafb, #f3f4f6);
+    }
+
+    #preview-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #1f2937;
+      direction: ltr;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% - 3.5rem);
+    }
+
+    #preview-close {
+      width: 2.25rem;
+      height: 2.25rem;
+      border: none;
+      border-radius: 50%;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #preview-close:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    #preview-body {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      min-height: 200px;
+      background: #fafafa;
+    }
+
+    #preview-body img {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 0.5rem;
+      object-fit: contain;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    #preview-body video,
+    #preview-body audio {
+      width: 100%;
+      max-height: 70vh;
+      border-radius: 0.5rem;
+      outline: none;
+    }
+
+    #preview-body iframe,
+    #preview-body object {
+      width: 100%;
+      height: 70vh;
+      border: none;
+      border-radius: 0.5rem;
+      background: #fff;
+    }
+
+    #preview-body pre {
+      width: 100%;
+      height: 70vh;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow: auto;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      direction: ltr;
+      text-align: left;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .preview-unavailable {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .preview-unavailable i {
+      font-size: 3.5rem;
+      color: #d1d5db;
+    }
+
+    /* loading spinner inside modal */
+    #preview-body .preview-spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 4px solid #e5e7eb;
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    /* ===== Scan Button ===== */
+    .btn-scan {
+      background: #eef2ff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      color: #4338ca;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-scan:hover:not(:disabled) {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .btn-scan:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    /* ===== Security Badges ===== */
+    .sec-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes badgePop {
+      from {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .sec-safe {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .sec-low {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .sec-medium {
+      background: #fef9c3;
+      color: #a16207;
+    }
+
+    .sec-warn {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .sec-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* scan progress bar across the file list */
+    #scan-progress-wrap {
+      padding: 0.5rem 1rem;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      display: none;
+    }
+
+    #scan-progress-wrap.active {
+      display: block;
+    }
+
+    #scan-prog-bar-bg {
+      background: #e0e7ff;
+      border-radius: 9999px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    #scan-prog-bar {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(to right, #6366f1, #3b82f6);
+      transition: width 0.25s;
+      width: 0%;
+    }
+
+    #scan-prog-label {
+      font-size: 0.72rem;
+      color: #6b7280;
+      font-weight: 700;
+      margin-top: 0.3rem;
+      text-align: center;
+    }
+
+    /* شارة المطور */
+    .dev-badge {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .dev-badge a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #111827;
+      color: #ffffff;
+      padding: 0.625rem 1.25rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 700;
+      transition: background-color 0.2s;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .dev-badge a:hover {
+      background: #1f2937;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <div class="header">
+      <!-- تم نقل الأيقونة لنهاية النص -->
+      <h1> جمارك الملفات<i class="fas fa-file-archive" style="margin-right: 8px;"></i></h1>
+      <p>فك الضغط والضغط (ZIP · 7Z · RAR) — يعمل بالكامل داخل المتصفح</p>
+    </div>
+    <div class="body">
+
+      <div class="toggle-row">
+        <div class="toggle">
+          <button id="btn-extract" class="active">استخراج</button>
+          <button id="btn-compress">ضغط</button>
+        </div>
+      </div>
+
+      <div id="compress-opts" class="compress-opts hidden">
+        <label>صيغة الضغط:</label>
+        <select id="fmt-select">
+          <option value="zip">ZIP</option>
+          <option value="7z">7Z</option>
+        </select>
+      </div>
+
+      <div id="error-box" class="error-box">
+        <i class="fas fa-exclamation-circle text-xl"></i>
+        <span id="error-msg"></span>
+      </div>
+
+      <label id="drop-zone" class="drop-zone" for="file-input">
+        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <h2 id="drop-title">اسحب الملف المضغوط هنا</h2>
+        <p>أو اضغط لاختيار ملف من جهازك</p>
+      </label>
+      <input type="file" id="file-input" class="hidden" accept=".zip,.rar,.7z,.tar,.gz">
+
+      <div id="loading-zone" class="loading-zone">
+        <div class="spinner"></div>
+        <div class="loading-title" id="load-title">جاري المعالجة...</div>
+        <div class="loading-sub" id="load-sub">يرجى الانتظار.</div>
+        <div class="progress-wrap">
+          <div class="progress-bar-bg">
+            <div class="progress-bar" id="prog-bar"></div>
+          </div>
+          <div class="progress-labels">
+            <span id="prog-pct">0%</span>
+            <span id="prog-eta">الوقت المتبقي: يحسب...</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="results-zone" class="results-zone">
+        <div class="results-header">
+          <h3><i class="fas fa-folder-open" style="color:#eab308;margin-left:8px;"></i><span
+              id="res-name">النتائج</span></h3>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <button class="btn-scan" id="btn-scan">فحص الأمان <i class="fas fa-shield-alt"></i></button>
+            <button class="btn-reset" id="btn-reset">عملية جديدة <i class="fas fa-redo" style="margin-right:6px"></i></button>
+          </div>
+        </div>
+        <div id="scan-progress-wrap">
+          <div id="scan-prog-bar-bg">
+            <div id="scan-prog-bar"></div>
+          </div>
+          <div id="scan-prog-label">جاري الفحص...</div>
+        </div>
+        <div class="file-list" id="file-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- شارة المطور -->
+  <div class="dev-badge">
+    <a href="https://github.com/DevAuto473" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-github text-lg"></i>
+      <span>تم تصميم هذا الموقع من قبل DevAuto473</span>
+    </a>
+  </div>
+
+  <script>
+    // --- لم يتم المساس بالكود أدناه إطلاقاً ---
+    const $ = id => document.getElementById(id);
+    let mode = 'extract';
+    let worker = null;
+    let workerReady = false;
+    let pendingCbs = {};
+    let msgId = 0;
+    let startTime = 0;
+
+    // ---- Mode Toggle ----
+    $('btn-extract').onclick = () => setMode('extract');
+    $('btn-compress').onclick = () => setMode('compress');
+
+    function setMode(m) {
+      mode = m;
+      $('btn-extract').className = m === 'extract' ? 'active' : '';
+      $('btn-compress').className = m === 'compress' ? 'active' : '';
+      $('compress-opts').classList.toggle('hidden', m === 'extract');
+      $('drop-title').textContent = m === 'extract' ? 'اسحب الملف المضغوط هنا' : 'اسحب الملفات المراد ضغطها';
+      $('file-input').multiple = m === 'compress';
+      $('file-input').accept = m === 'compress' ? '' : '.zip,.rar,.7z,.tar,.gz';
+    }
+
+    // ---- Drop Zone ----
+    const dz = $('drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if (e.dataTransfer.files.length) go(e.dataTransfer.files); });
+    $('file-input').onchange = e => { if (e.target.files.length) go(e.target.files); };
+    $('btn-reset').onclick = reset;
+
+    // ---- UI Helpers ----
+    function showZone(name) {
+      ['drop-zone', 'loading-zone', 'results-zone'].forEach(z => {
+        const el = $(z);
+        el.style.display = z === name ? (z === 'loading-zone' ? 'flex' : z === 'results-zone' ? 'block' : 'flex') : 'none';
+      });
+    }
+    function reset() {
+      showZone('drop-zone');
+      $('file-list').innerHTML = '';
+      $('file-input').value = '';
+      $('error-box').style.display = 'none';
+      setProgress(0, '');
+    }
+    function setProgress(pct, eta) {
+      $('prog-bar').style.width = pct + '%';
+      $('prog-pct').textContent = Math.round(pct) + '%';
+      if (eta !== undefined) $('prog-eta').textContent = eta;
+    }
+    function setLoad(title, sub) {
+      $('load-title').textContent = title;
+      $('load-sub').textContent = sub || '';
+    }
+    function showError(msg) {
+      $('error-box').style.display = 'flex';
+      $('error-msg').textContent = msg;
+      showZone('drop-zone');
+    }
+    function fmtBytes(b) {
+      if (!b) return '0 B';
+      const u = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.min(3, Math.floor(Math.log(b) / Math.log(1024)));
+      return (b / Math.pow(1024, i)).toFixed(1) + ' ' + u[i];
+    }
+    function fmtETA(ms) {
+      const s = Math.ceil(ms / 1000);
+      if (!isFinite(s) || s < 0) return 'يحسب...';
+      if (s < 60) return `الوقت المتبقي: ${s} ثانية`;
+      return `الوقت المتبقي: ${Math.floor(s / 60)} د ${s % 60} ث`;
+    }
+
+    // ---- 7z Worker ----
+    const WORKER_CODE = `
+importScripts('https://unpkg.com/7z-wasm@1.2.0/7zz.umd.js');
+let sz=null,out=[],arch=null;
+self.onmessage=async e=>{
+  const m=e.data;
+  if(m.t==='INIT'){
+    try{
+      sz=await SevenZip({locateFile:p=>'https://unpkg.com/7z-wasm@1.2.0/'+p,print:t=>out.push(t)});
+      sz.FS.mkdir('/w');sz.FS.mkdir('/o');
+      self.postMessage({t:'OK',id:m.id});
+    }catch(err){self.postMessage({t:'ERR',id:m.id,e:err.message});}
+  }
+  else if(m.t==='OPEN'){
+    try{
+      try{sz.FS.unmount('/w');}catch(_){}
+      arch=m.f;
+      sz.FS.mount(sz.WORKERFS,{files:[arch]},'/w');
+      out=[];
+      sz.callMain(['l','-slt','/w/'+arch.name]);
+      self.postMessage({t:'OK',id:m.id,entries:parse(out.join('\\n'))});
+    }catch(err){self.postMessage({t:'ERR',id:m.id,e:err.message});}
+  }
+  else if(m.t==='EXTRACT'){
+    try{
+      out=[];
+      sz.callMain(['e','-y','-o/o','/w/'+arch.name,m.path]);
+      const fn=m.path.replace(/\\\\/g,'/').split('/').pop();
+      const d=sz.FS.readFile('/o/'+fn);
+      sz.FS.unlink('/o/'+fn);
+      self.postMessage({t:'OK',id:m.id,data:d},[d.buffer]);
+    }catch(err){self.postMessage({t:'ERR',id:m.id,e:err.message});}
+  }
+  else if(m.t==='COMPRESS'){
+    try{
+      for(const f of m.files){
+        const s=sz.FS.open('/o/'+f.name,'w+');
+        const a=await f.arrayBuffer();
+        sz.FS.write(s,new Uint8Array(a),0,a.byteLength);
+        sz.FS.close(s);
+      }
+      out=[];
+      const outName='/o/archive.'+m.fmt;
+      sz.callMain(['a',outName,...m.files.map(f=>'/o/'+f.name)]);
+      const d=sz.FS.readFile(outName);
+      sz.FS.unlink(outName);
+      m.files.forEach(f=>{try{sz.FS.unlink('/o/'+f.name);}catch(_){}});
+      self.postMessage({t:'OK',id:m.id,data:d},[d.buffer]);
+    }catch(err){self.postMessage({t:'ERR',id:m.id,e:err.message});}
+  }
+};
+function parse(txt){
+  const res=[];let cur=null;
+  for(const raw of txt.split('\\n')){
+    const l=raw.trim();
+    if(!l){if(cur&&cur.Path)res.push(cur);cur=null;continue;}
+    if(!cur)cur={};
+    const i=l.indexOf('=');
+    if(i>-1)cur[l.slice(0,i).trim()]=l.slice(i+1).trim();
+  }
+  if(cur&&cur.Path)res.push(cur);
+  return res.filter(e=>e.Path&&!(e.Attributes&&e.Attributes[0]==='D'));
+}
+`;
+
+    function getWorker() {
+      if (worker && workerReady) return Promise.resolve();
+      const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+      worker = new Worker(URL.createObjectURL(blob));
+      workerReady = false;
+      worker.onmessage = e => {
+        const { t, id, e: err, ...rest } = e.data;
+        const cb = pendingCbs[id];
+        if (!cb) return;
+        delete pendingCbs[id];
+        if (t === 'ERR') cb.reject(new Error(err));
+        else cb.resolve(rest);
+      };
+      return wMsg({ t: 'INIT' }).then(() => { workerReady = true; });
+    }
+
+    function wMsg(msg) {
+      return new Promise((resolve, reject) => {
+        const id = ++msgId;
+        pendingCbs[id] = { resolve, reject };
+        msg.id = id;
+        worker.postMessage(msg);
+      });
+    }
+
+    // ---- Main Flow ----
+    async function go(files) {
+      $('error-box').style.display = 'none';
+      startTime = Date.now();
+
+      if (mode === 'extract') {
+        const file = files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        showZone('loading-zone');
+        setLoad('جاري قراءة الأرشيف...', file.name);
+        setProgress(5, '');
+
+        if (ext === 'zip' && typeof JSZip !== 'undefined') {
+          try {
+            setProgress(30, 'يعالج...');
+            const zip = new JSZip();
+            const contents = await zip.loadAsync(file);
+            const list = [];
+            contents.forEach((path, entry) => {
+              if (!entry.dir) list.push({
+                name: entry.name.split('/').pop(),
+                path: entry.name,
+                size: entry._data ? entry._data.uncompressedSize : 0,
+                dl: () => entry.async('blob')
+              });
+            });
+            setProgress(100, 'اكتمل');
+            renderFiles(list, file.name);
+          } catch (e) { showError('فشل قراءة ملف ZIP: ' + e.message); }
+        } else {
+          try {
+            setLoad('جاري تحميل محرك الاستخراج...', 'قد يستغرق الأمر لحظة عند أول استخدام');
+            setProgress(10, '');
+            await getWorker();
+            setProgress(25, '');
+            setLoad('جاري قراءة محتويات الأرشيف...', file.name);
+            const { entries } = await wMsg({ t: 'OPEN', f: file });
+            setProgress(60, '');
+            const list = entries.map(e => {
+              const p = e.Path.replace(/\\/g, '/');
+              return {
+                name: p.split('/').pop(),
+                path: e.Path,
+                size: parseInt(e.Size) || 0,
+                dl: async () => {
+                  const { data } = await wMsg({ t: 'EXTRACT', path: e.Path });
+                  return new Blob([data]);
+                }
+              };
+            });
+            setProgress(100, 'اكتمل');
+            renderFiles(list, file.name);
+          } catch (e) { showError('فشل قراءة الأرشيف: ' + e.message); }
+        }
+
+      } else {
+        // Compress mode
+        const fmt = $('fmt-select').value;
+        const fileArr = Array.from(files);
+        showZone('loading-zone');
+        setLoad('جاري تهيئة محرك الضغط...', 'قد يستغرق الأمر لحظة عند أول استخدام');
+        setProgress(10, '');
+
+        if (fmt === 'zip') {
+          try {
+            setLoad('جاري ضغط الملفات...', '');
+            setProgress(30, '');
+            const zip = new JSZip();
+            for (let i = 0; i < fileArr.length; i++) {
+              const f = fileArr[i];
+              zip.file(f.name, await f.arrayBuffer());
+              setProgress(30 + (i / fileArr.length) * 40, '');
+            }
+            setLoad('جاري بناء الأرشيف...', '');
+            const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }, meta => {
+              setProgress(70 + meta.percent * 0.3, fmtETA((Date.now() - startTime) / (meta.percent / 100 + .001) * (1 - meta.percent / 100)));
+            });
+            downloadBlob(blob, 'archive.zip');
+            setProgress(100, 'اكتمل!');
+            setTimeout(reset, 2000);
+          } catch (e) { showError('فشل الضغط: ' + e.message); }
+        } else {
+          try {
+            await getWorker();
+            setProgress(30, '');
+            setLoad('جاري الضغط...', 'العملية تتم داخل المتصفح');
+            const { data } = await wMsg({ t: 'COMPRESS', files: fileArr, fmt });
+            setProgress(100, 'اكتمل!');
+            downloadBlob(new Blob([data]), 'archive.' + fmt);
+            setTimeout(reset, 2000);
+          } catch (e) { showError('فشل الضغط: ' + e.message); }
+        }
+      }
+    }
+
+    function downloadBlob(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    // ---- Render File List ----
+    const ICONS = {
+      img: { exts: ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'], cls: 'fa-file-image', bg: '#eff6ff', color: '#3b82f6' },
+      vid: { exts: ['mp4', 'mkv', 'avi', 'mov'], cls: 'fa-file-video', bg: '#faf5ff', color: '#9333ea' },
+      aud: { exts: ['mp3', 'wav', 'ogg'], cls: 'fa-file-audio', bg: '#f0fdf4', color: '#16a34a' },
+      pdf: { exts: ['pdf'], cls: 'fa-file-pdf', bg: '#fef2f2', color: '#ef4444' },
+      doc: { exts: ['doc', 'docx'], cls: 'fa-file-word', bg: '#eff6ff', color: '#1d4ed8' },
+      xls: { exts: ['xls', 'xlsx', 'csv'], cls: 'fa-file-excel', bg: '#f0fdf4', color: '#15803d' },
+      arc: { exts: ['zip', 'rar', '7z', 'tar', 'gz'], cls: 'fa-file-archive', bg: '#fffbeb', color: '#d97706' },
+      cod: { exts: ['js', 'ts', 'html', 'css', 'json', 'py', 'php', 'cpp', 'c', 'rs'], cls: 'fa-file-code', bg: '#eff6ff', color: '#6366f1' },
+    };
+
+    function getIcon(name) {
+      const ext = (name.split('.').pop() || '').toLowerCase();
+      for (const k of Object.values(ICONS)) if (k.exts.includes(ext)) return k;
+      return { cls: 'fa-file-alt', bg: '#f9fafb', color: '#6b7280' };
+    }
+
+    function renderFiles(list, archName) {
+      $('res-name').textContent = archName + ' (' + list.length + ' ملف)';
+      const ul = $('file-list');
+      ul.innerHTML = '';
+      if (!list.length) {
+        ul.innerHTML = '<div style="padding:2rem;text-align:center;color:#9ca3af;font-weight:600">الأرشيف فارغ</div>';
+      }
+      list.forEach(f => {
+        const ic = getIcon(f.name);
+        const dlId = 'b' + (++msgId);
+        const pvId = 'p' + (++msgId);
+        const li = document.createElement('div');
+        li.className = 'file-item';
+        li.innerHTML = `
+      <div class="file-icon" style="background:${ic.bg};color:${ic.color}"><i class="fas ${ic.cls}"></i></div>
+      <div class="file-meta">
+        <div class="file-name" title="${f.path}">${f.name}</div>
+        <div class="file-size">${fmtBytes(f.size)}</div>
+      </div>
+      <button class="btn-preview" id="${pvId}" title="معاينة">معاينة <i class="fas fa-eye"></i></button>
+      <button class="btn-dl" id="${dlId}">تحميل <i class="fas fa-download" style="margin-right:5px"></i></button>`;
+        ul.appendChild(li);
+
+        // Download handler
+        document.getElementById(dlId).onclick = async function () {
+          const btn = this;
+          if (btn.disabled) return;
+          btn.disabled = true;
+          btn.innerHTML = 'يستخرج... <i class="fas fa-spinner fa-spin"></i>';
+          try {
+            const blob = await f.dl();
+            downloadBlob(blob, f.name);
+            btn.className = 'btn-dl success';
+            btn.innerHTML = 'تم <i class="fas fa-check"></i>';
+          } catch (e) {
+            btn.className = 'btn-dl error';
+            btn.innerHTML = 'خطأ <i class="fas fa-times"></i>';
+            console.error(e);
+          }
+        };
+
+        // Preview handler
+        document.getElementById(pvId).onclick = async function () {
+          const btn = this;
+          btn.disabled = true;
+          openPreviewModal(f.name, null); // show loading first
+          try {
+            const blob = await f.dl();
+            openPreviewModal(f.name, blob);
+          } catch (e) {
+            console.error(e);
+            openPreviewModal(f.name, null, true);
+          } finally {
+            btn.disabled = false;
+          }
+        };
+      });
+      showZone('results-zone');
+      // حفظ القائمة للفحص الأمني
+      currentList = list;
+      // إعادة ضبط زر الفحص عند عرض ملفات جديدة
+      const sb = $('btn-scan');
+      if (sb) { sb.disabled = false; sb.innerHTML = 'فحص الأمان <i class="fas fa-shield-alt"></i>'; }
+      const pw = $('scan-progress-wrap');
+      if (pw) pw.classList.remove('active');
+    }
+
+    // ===== Security Scan Logic =====
+    let currentList = [];
+
+    // مستويات الخطر بناءً على النقاط
+    function scoreToRisk(score, hits) {
+      if (score === 0) return {
+        label: 'آمن جداً', cls: 'sec-safe', icon: 'fa-shield-alt',
+        tip: 'لم يتم اكتشاف أي كود مشبوه'
+      };
+      if (score < 30) return {
+        label: 'مشبوه قليلاً', cls: 'sec-low', icon: 'fa-search',
+        tip: 'أنماط بسيطة: ' + hits.join(' | ')
+      };
+      if (score < 70) return {
+        label: 'خطر محتمل', cls: 'sec-medium', icon: 'fa-exclamation-circle',
+        tip: 'أنماط متوسطة: ' + hits.join(' | ')
+      };
+      if (score < 130) return {
+        label: 'خطر عالٍ', cls: 'sec-warn', icon: 'fa-exclamation-triangle',
+        tip: 'أنماط خطيرة: ' + hits.join(' | ')
+      };
+      return {
+        label: 'خطر جداً', cls: 'sec-danger', icon: 'fa-skull-crossbones',
+        tip: 'حمولة خبيثة: ' + hits.join(' | ')
+      };
+    }
+
+    // ملفات وسائط — آمنة دائماً
+    const ALWAYS_SAFE = new Set([
+      'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico',
+      'mp4', 'webm', 'mkv', 'avi', 'mov',
+      'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a',
+      'txt', 'md', 'csv', 'log', 'ini', 'toml', 'yaml', 'yml',
+      'ttf', 'otf', 'woff', 'woff2', 'eot',
+    ]);
+
+    // أرشيفات — محتواها ينفحص بشكل مستقل
+    const ARCHIVE_EXTS = new Set(['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz']);
+
+    // ملفات تنفيذية خطيرة بطبيعتها (بدون فحص محتوى)
+    const BINARY_DANGER = new Set([
+      'exe', 'dll', 'com', 'scr', 'pif', 'bat', 'cmd', 'vbs', 'vbe',
+      'msi', 'ps1', 'psm1', 'psd1', 'jar', 'reg', 'hta', 'wsf', 'wsh',
+      'lnk', 'app', 'apk', 'ipa', 'dmg',
+    ]);
+
+    // ملفات Office/PDF
+    const OFFICE_EXTS = new Set(['pdf', 'docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'odt', 'ods']);
+
+    // ملفات برمجية
+    const CODE_EXTS = new Set([
+      'html', 'htm', 'js', 'ts', 'jsx', 'tsx', 'mjs', 'cjs',
+      'css', 'json', 'xml', 'svg',
+      'py', 'rb', 'go', 'rs', 'java', 'cpp', 'c', 'h', 'cs',
+      'php', 'asp', 'aspx', 'jsp',
+      'sh', 'bash', 'zsh', 'fish',
+    ]);
+
+    // ========================================================
+    // قاموس الأنماط الخبيثة مع أوزان خطورتها
+    // CRITICAL=100  HIGH=60  MEDIUM=30  LOW=10
+    // ========================================================
+    const PATTERNS = [
+      // ─── CRITICAL ─────────────────────────────────────────
+      { re: /WScript\.Shell/i, w: 100, name: 'WScript.Shell' },
+      { re: /ActiveXObject/i, w: 100, name: 'ActiveXObject' },
+      { re: /powershell\s+-[eEnNcC]/i, w: 100, name: 'PowerShell encoded' },
+      { re: /cmd\.exe\s*\/[cCkK]/i, w: 100, name: 'cmd.exe exec' },
+      { re: /document\.write\s*\(\s*unescape/i, w: 100, name: 'write+unescape' },
+      { re: /shell_exec\s*\(/i, w: 100, name: 'shell_exec()' },
+      { re: /proc_open\s*\(/i, w: 100, name: 'proc_open()' },
+      { re: /passthru\s*\(/i, w: 100, name: 'passthru()' },
+      { re: /\/JavaScript\b/, w: 100, name: 'JS in PDF' },
+      { re: /\/Launch\b/, w: 100, name: 'PDF Launch' },
+      { re: /Auto_?Open\b/i, w: 100, name: 'Auto_Open macro' },
+      { re: /Auto_?Close\b/i, w: 100, name: 'Auto_Close macro' },
+      { re: /Document_?Open\b/i, w: 100, name: 'Document_Open macro' },
+
+      // ─── HIGH ──────────────────────────────────────────────
+      { re: /eval\s*\(\s*(?:atob|unescape|String\.fromCharCode)/i, w: 60, name: 'eval+decode' },
+      { re: /eval\s*\(\s*(?:require|Buffer|process)/i, w: 60, name: 'eval+node' },
+      { re: /new\s+Function\s*\(\s*(?:atob|unescape)/i, w: 60, name: 'new Function+decode' },
+      { re: /base64_decode\s*\(/i, w: 60, name: 'base64_decode()' },
+      { re: /String\.fromCharCode\s*\(/i, w: 60, name: 'fromCharCode obfuscation' },
+      { re: /CreateObject\s*\(/i, w: 60, name: 'CreateObject()' },
+      { re: /\bXMLHTTP\b/i, w: 60, name: 'XMLHTTP fetch' },
+      { re: /powershell/i, w: 60, name: 'PowerShell call' },
+      { re: /\/bin\/(sh|bash|zsh|dash)\b/, w: 60, name: 'shell execution' },
+      { re: /wget\s+https?:\/\//i, w: 60, name: 'wget download' },
+      { re: /curl\s+.*https?:\/\//i, w: 60, name: 'curl download' },
+      { re: /import\s+os\s*;?\s*os\.(system|popen)/i, w: 60, name: 'Python os.system' },
+      { re: /subprocess\.(Popen|call|run)\s*\(/i, w: 60, name: 'Python subprocess' },
+      { re: /Runtime\.getRuntime\(\)\.exec/i, w: 60, name: 'Java exec()' },
+      { re: /Shell\s*\(/i, w: 60, name: 'Shell() macro call' },
+
+      // ─── MEDIUM ────────────────────────────────────────────
+      { re: /eval\s*\(/i, w: 30, name: 'eval()' },
+      { re: /atob\s*\(/i, w: 30, name: 'atob() decode' },
+      { re: /btoa\s*\(/i, w: 10, name: 'btoa() encode' },
+      { re: /\\x[0-9a-f]{2}\\x[0-9a-f]{2}/i, w: 30, name: 'hex obfuscation' },
+      { re: /\\u00[0-9a-f]{2}\\u00[0-9a-f]{2}/i, w: 30, name: 'unicode obfuscation' },
+      { re: /setTimeout\s*\(\s*["'`]/i, w: 30, name: 'setTimeout(string)' },
+      { re: /setInterval\s*\(\s*["'`]/i, w: 30, name: 'setInterval(string)' },
+      { re: /document\.cookie\s*=/i, w: 10, name: 'cookie theft' },
+      { re: /localStorage\s*\.\s*setItem/i, w: 10, name: 'localStorage write' },
+      { re: /fetch\s*\([^)]*password/i, w: 30, name: 'fetch password' },
+      { re: /new\s+WebSocket\s*\(/i, w: 10, name: 'WebSocket' },
+      { re: /navigator\.sendBeacon/i, w: 30, name: 'sendBeacon exfil' },
+      { re: /window\.location\s*=\s*["'`]/i, w: 10, name: 'redirect' },
+
+      // ─── LOW ───────────────────────────────────────────────
+      { re: /innerHTML\s*\+?=/i, w: 10, name: 'innerHTML write' },
+      { re: /\.write\s*\(/i, w: 10, name: 'document.write' },
+      { re: /require\s*\(\s*['"]child_process/i, w: 30, name: 'child_process' },
+      { re: /require\s*\(\s*['"]fs['"]\s*\)/i, w: 10, name: 'node fs module' },
+      { re: /process\.env\b/i, w: 10, name: 'process.env access' },
+      { re: /__import__\s*\(\s*['"]os['"]\)/i, w: 30, name: 'Python __import__' },
+      { re: /exec\s*\(/i, w: 10, name: 'exec()' },
+    ];
+
+    async function readChunk(f, bytes = 80000) {
+      try {
+        const blob = await f.dl();
+        return await blob.slice(0, bytes).text();
+      } catch { return ''; }
+    }
+
+    async function getRiskLevel(f) {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+
+      // تنفيذي خطير فوراً
+      if (BINARY_DANGER.has(ext)) return {
+        label: 'خطر جداً', cls: 'sec-danger', icon: 'fa-skull-crossbones',
+        tip: 'ملف تنفيذي خطير'
+      };
+
+      // أرشيف — لا نفحص محتواه الثنائي
+      if (ARCHIVE_EXTS.has(ext)) return {
+        label: 'أرشيف', cls: 'sec-safe', icon: 'fa-box-open',
+        tip: 'أرشيف — افحص محتواه مستقلاً'
+      };
+
+      // وسائط / نصوص — آمن مباشرة
+      if (ALWAYS_SAFE.has(ext)) return {
+        label: 'آمن جداً', cls: 'sec-safe', icon: 'fa-shield-alt',
+        tip: 'ملف وسائط أو نص — لا يُنفَّذ'
+      };
+
+      // فحص المحتوى لـ code + office + pdf + غير معروف
+      const text = await readChunk(f);
+      if (!text) return {
+        label: 'آمن جداً', cls: 'sec-safe', icon: 'fa-shield-alt',
+        tip: 'لم يمكن قراءة المحتوى'
+      };
+
+      let score = 0;
+      const hits = [];
+      const counted = new Set(); // لا نحتسب نفس الـ pattern مرتين
+
+      for (const p of PATTERNS) {
+        if (counted.has(p.name)) continue;
+        if (p.re.test(text)) {
+          score += p.w;
+          hits.push(p.name);
+          counted.add(p.name);
+        }
+      }
+
+      return scoreToRisk(score, hits);
+    }
+
+    async function runSecurityScan() {
+      if (!currentList.length) return;
+      const btn = $('btn-scan');
+      const pw = $('scan-progress-wrap');
+      const pb = $('scan-prog-bar');
+      const pl = $('scan-prog-label');
+
+      btn.disabled = true;
+      btn.innerHTML = 'جاري الفحص... <i class="fas fa-spinner fa-spin"></i>';
+      pw.classList.add('active');
+      pb.style.width = '0%';
+
+      const items = $('file-list').querySelectorAll('.file-item');
+
+      for (let i = 0; i < currentList.length; i++) {
+        const f = currentList[i];
+        const item = items[i];
+        if (!item) continue;
+
+        pl.textContent = `فحص ${i + 1} من ${currentList.length}: ${f.name}`;
+        pb.style.width = ((i / currentList.length) * 100) + '%';
+
+        const old = item.querySelector('.sec-badge');
+        if (old) old.remove();
+
+        const risk = await getRiskLevel(f);
+
+        const badge = document.createElement('span');
+        badge.className = `sec-badge ${risk.cls}`;
+        badge.innerHTML = `<i class="fas ${risk.icon}"></i>${risk.label}`;
+        badge.title = risk.tip || '';
+
+        const pvBtn = item.querySelector('.btn-preview');
+        if (pvBtn) item.insertBefore(badge, pvBtn);
+        else item.appendChild(badge);
+      }
+
+      pb.style.width = '100%';
+      pl.textContent = `اكتمل الفحص — ${currentList.length} ملف`;
+      btn.innerHTML = 'اكتمل الفحص <i class="fas fa-check-circle"></i>';
+      btn.disabled = false;
+    }
+
+    // ربط الزر بعد تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      const sb = $('btn-scan');
+      if (sb) sb.addEventListener('click', runSecurityScan);
+    });
+
+
+
+
+
+    // ===== Preview Modal Logic =====
+    const PREVIEW_TYPES = {
+      image: ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico'],
+      video: ['mp4', 'webm', 'ogg', 'mov', 'avi'],
+      audio: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'],
+      pdf: ['pdf'],
+      html: ['html', 'htm'],
+      text: ['txt', 'js', 'ts', 'jsx', 'tsx', 'css', 'json', 'xml', 'yaml', 'yml', 'py', 'php', 'cpp', 'c', 'h', 'java', 'rb', 'rs', 'go', 'sh', 'md', 'csv', 'ini', 'toml', 'log']
+    };
+
+    function getPreviewType(name) {
+      const ext = (name.split('.').pop() || '').toLowerCase();
+      for (const [type, exts] of Object.entries(PREVIEW_TYPES)) {
+        if (exts.includes(ext)) return type;
+      }
+      return null;
+    }
+
+    let _previewObjectUrl = null;
+
+    function cleanupPreviewUrl() {
+      if (_previewObjectUrl) {
+        URL.revokeObjectURL(_previewObjectUrl);
+        _previewObjectUrl = null;
+      }
+    }
+
+    function closePreviewModal() {
+      const overlay = document.getElementById('preview-overlay');
+      overlay.classList.remove('open');
+      cleanupPreviewUrl();
+      setTimeout(() => {
+        document.getElementById('preview-body').innerHTML = '';
+      }, 280);
+    }
+
+    function openPreviewModal(fileName, blob, loadError) {
+      const overlay = document.getElementById('preview-overlay');
+      const body = document.getElementById('preview-body');
+      const title = document.getElementById('preview-title');
+
+      title.textContent = fileName;
+
+      if (!blob && !loadError) {
+        // Show loading spinner
+        body.innerHTML = '<div class="preview-spinner"></div>';
+        overlay.classList.add('open');
+        return;
+      }
+
+      if (loadError) {
+        body.innerHTML = `
+          <div class="preview-unavailable">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>فشل تحميل الملف للمعاينة</span>
+          </div>`;
+        overlay.classList.add('open');
+        return;
+      }
+
+      const type = getPreviewType(fileName);
+      cleanupPreviewUrl();
+
+      if (!type) {
+        body.innerHTML = `
+          <div class="preview-unavailable">
+            <i class="fas fa-eye-slash"></i>
+            <span>المعاينة غير متاحة لهذا النوع من الملفات</span>
+          </div>`;
+        overlay.classList.add('open');
+        return;
+      }
+
+      // خريطة MIME types لضمان عرض الملفات بشكل صحيح في المتصفح
+      const MIME_MAP = {
+        // صور
+        png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+        gif: 'image/gif', svg: 'image/svg+xml', webp: 'image/webp',
+        bmp: 'image/bmp', ico: 'image/x-icon',
+        // فيديو
+        mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime',
+        avi: 'video/x-msvideo',
+        // صوت
+        mp3: 'audio/mpeg', wav: 'audio/wav',
+        flac: 'audio/flac', aac: 'audio/aac', m4a: 'audio/mp4',
+        // وثائق / ويب
+        pdf: 'application/pdf',
+        html: 'text/html; charset=utf-8',
+        htm: 'text/html; charset=utf-8',
+      };
+      const ext = (fileName.split('.').pop() || '').toLowerCase();
+      const mime = MIME_MAP[ext] || blob.type || 'application/octet-stream';
+
+      // أعد بناء الـ blob بالنوع الصحيح إذا كان فارغاً
+      const typedBlob = blob.type && blob.type !== 'application/octet-stream'
+        ? blob
+        : new Blob([blob], { type: mime });
+
+      const url = URL.createObjectURL(typedBlob);
+      _previewObjectUrl = url;
+
+      if (type === 'image') {
+        body.innerHTML = `<img src="${url}" alt="${fileName}" />`;
+      } else if (type === 'video') {
+        body.innerHTML = `<video controls src="${url}"></video>`;
+      } else if (type === 'audio') {
+        body.innerHTML = `<audio controls src="${url}"></audio>`;
+      } else if (type === 'pdf') {
+        // نستخدم <object> كـ fallback لـ Firefox الذي أحياناً يتجاهل iframe+blob لـ PDF
+        body.innerHTML = `
+          <object data="${url}" type="application/pdf" style="width:100%;height:70vh;border:none;border-radius:0.5rem;">
+            <iframe src="${url}" title="${fileName}" style="width:100%;height:70vh;border:none;border-radius:0.5rem;"></iframe>
+          </object>`;
+      } else if (type === 'html') {
+        body.innerHTML = `<iframe src="${url}" title="${fileName}" sandbox="allow-scripts allow-same-origin"></iframe>`;
+      } else if (type === 'text') {
+        // For text we read as text — revoke blob url after reading
+        body.innerHTML = '<div class="preview-spinner"></div>';
+        blob.text().then(text => {
+          const escaped = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+          body.innerHTML = `<pre><code>${escaped}</code></pre>`;
+          cleanupPreviewUrl();
+        }).catch(() => {
+          body.innerHTML = `
+            <div class="preview-unavailable">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>تعذّر قراءة محتوى الملف</span>
+            </div>`;
+          cleanupPreviewUrl();
+        });
+      }
+
+      overlay.classList.add('open');
+    }
+
+    // Inject modal HTML once DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.createElement('div');
+      modal.id = 'preview-overlay';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.innerHTML = `
+        <div id="preview-box">
+          <div id="preview-header">
+            <span id="preview-title"></span>
+            <button id="preview-close" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+          </div>
+          <div id="preview-body"></div>
+        </div>`;
+      document.body.appendChild(modal);
+
+      document.getElementById('preview-close').addEventListener('click', closePreviewModal);
+      modal.addEventListener('click', e => { if (e.target === modal) closePreviewModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreviewModal(); });
+    });
+  </script>
+</body>
+
+</html>
